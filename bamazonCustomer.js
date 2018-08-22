@@ -65,24 +65,33 @@ function searchItem() {
             connection.query("SELECT * FROM products WHERE item_id = " + "'" + answers.Choices + "'", function(err, results) {
                 if (howManyAnswer.HowMany < results[0].stock_quantity) {
                     var remainingQuantity = results[0].stock_quantity - howManyAnswer.HowMany;
-                    
-                    connection.query("UPDATE products SET stock_quantity = " + remainingQuantity + "WHERE item_id = " + answers.choices + ";" , function(err, stockRes) {
-                        var saleTotal = howManyAnswer.HowMany * results[0].price;
-                        inquirer.prompt([
-                            {
-                                name: "CanYouPay",
-                                message: "Your total is " + saleTotal + ", please type in the exact amount and hit enter"
-                            }
-                        ]).then(function(checkout){
-                            if (saleTotal === checkout.CanYouPay) {
-                                console.log("You are the new proud owner of " + howManyAnswer + " " + results[0].product_Name + " shares");
-                            } 
-                        })
+                    var saleTotal = howManyAnswer.HowMany * results[0].price;
+                    inquirer.prompt([
+                        {
+                            type: "list",
+                            name: "CanYouPay",
+                            message: "Your total is " + saleTotal + ", is this correct?",
+                            choices: ["Yes", "No"]
+                        }
+                    ]).then(function(checkout){
+                        if (checkout.CanYouPay === "Yes") {
+                            console.log("You are the new proud owner of " + howManyAnswer.HowMany + " '" + results[0].product_name + "' shares");
+                            connection.query("UPDATE products SET stock_quantity = " + remainingQuantity + " WHERE item_id = " + answers.Choices + ";");
+                            displayAll();
+                            searchItem();
+                        } 
+                        if (checkout.CanYouPay === "No") {
+                            console.log("Join us on our next haul!");
+                            displayAll();
+                            searchItem();
+                        }
                     })
+                } else {
+                    console.log("We do not have enough in stock, please quit and start again");
                 }
+            })
         })
     })
-})
 }
 
 searchItem();
