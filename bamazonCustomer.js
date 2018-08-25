@@ -27,24 +27,11 @@ function displayAll() {
             console.log("Quantity: " + results[i].stock_quantity);
             console.log("\n==============================================");
         }
-        console.log("press any key to continue");
+        searchItem();
     })
 }
 
 displayAll()
-
-function productID(query) {
-    console.log("Retreiving product by ID...");
-    connection.query("SELECT * FROM products WHERE item_id = " + "'" + query + "'", function(err, results) {
-        console.log("\n==============================================");
-        console.log("ID: " + results[0].item_id);
-        console.log("Name " + results[0].product_name);
-        console.log("Mining Company: " + results[0].department_name);
-        console.log("Price: $" + results[0].price);
-        console.log("Quantity: " + results[0].stock_quantity);
-        console.log("\n==============================================");
-    })
-}
 
 //productID("5");
 
@@ -55,7 +42,6 @@ function searchItem() {
             message: "Retreive a product by ID"
         }
     ]).then(function(answers){
-        productID(answers.Choices);
         inquirer.prompt([
             {
                 name: "HowMany",
@@ -77,13 +63,11 @@ function searchItem() {
                         if (checkout.CanYouPay === "Yes") {
                             console.log("You are the new proud owner of " + howManyAnswer.HowMany + " '" + results[0].product_name + "' shares");
                             connection.query("UPDATE products SET stock_quantity = " + remainingQuantity + " WHERE item_id = " + answers.Choices + ";");
-                            displayAll();
-                            searchItem();
+                            setTimeout(displayAll, 2000);
                         } 
                         if (checkout.CanYouPay === "No") {
                             console.log("Join us on our next haul!");
-                            displayAll();
-                            searchItem();
+                            setTimeout(displayAll, 2000);
                         }
                     })
                 } else {
@@ -94,4 +78,3 @@ function searchItem() {
     })
 }
 
-searchItem();
